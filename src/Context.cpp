@@ -33,7 +33,7 @@ SDL_Window* Context::window = nullptr;
 SDL_Renderer* Context::renderer = nullptr;
 bool Context::quit = false;
 
-void Context::init(const char* title, int w, int h, const char* icon) {
+void Context::init(const char* title, int w, int h) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER)) {
     fprintf(stderr, "SDL_Init failure: %s\n", SDL_GetError());
     exit(0);
@@ -44,11 +44,6 @@ void Context::init(const char* title, int w, int h, const char* icon) {
   }
   window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, 0);
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  if (icon) {
-    SDL_Surface* surface = IMG_Load(icon);
-    SDL_SetWindowIcon(window, surface);
-    SDL_FreeSurface(surface);
-  }
   for (auto& butt : buttons)
     butt = RELEASED;
 }
@@ -151,14 +146,4 @@ void Context::Image::render(int x, int y) {
   dstrect.x = x;
   dstrect.y = y;
   SDL_RenderCopy(renderer, texture, nullptr, &dstrect);
-}
-
-bool Context::Image::leftClicked() {
-  return
-    button(LEFT_MOUSE_BUTTON) == JUST_RELEASED &&
-    mousedownx >= dstrect.x && mousedownx < dstrect.x + dstrect.w &&
-    mousedowny >= dstrect.y && mousedowny < dstrect.y + dstrect.h &&
-    mouseupx >= dstrect.x && mouseupx < dstrect.x + dstrect.w &&
-    mouseupy >= dstrect.y && mouseupy < dstrect.y + dstrect.h
-  ;
 }

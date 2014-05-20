@@ -25,7 +25,6 @@ class Context {
         Image(const std::string& fn);
         ~Image();
         void render(int x, int y);
-        bool leftClicked();
     };
     
     enum InputState {
@@ -47,7 +46,7 @@ class Context {
     static SDL_Renderer* renderer;
     static bool quit;
   public:
-    static void init(const char* title, int w, int h, const char* icon);
+    static void init(const char* title, int w, int h);
     static void close();
     static bool shouldQuit();
     static void input();
