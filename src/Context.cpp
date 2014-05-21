@@ -11,6 +11,7 @@
 // standard
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 // lib
 #include <SDL_image.h>
@@ -32,6 +33,10 @@ int Context::mouseupy = -1;
 SDL_Window* Context::window = nullptr;
 SDL_Renderer* Context::renderer = nullptr;
 bool Context::quit = false;
+uint32_t* Context::pixels = nullptr;
+SDL_Texture* Context::texture = nullptr;
+int Context::windowWidth;
+int Context::windowHeight;
 
 void Context::init(const char* title, int w, int h) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER)) {
@@ -46,9 +51,15 @@ void Context::init(const char* title, int w, int h) {
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
   for (auto& butt : buttons)
     butt = RELEASED;
+  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, w, h);
+  pixels = new uint32_t[w*h];
+  memset(pixels, 0, w*h*sizeof(uint32_t));
+  windowWidth = w;
+  windowHeight = h;
 }
 
 void Context::close() {
+  delete[] pixels;
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   IMG_Quit();
@@ -113,7 +124,17 @@ void Context::input() {
 }
 
 void Context::render() {
+  SDL_UpdateTexture(texture, nullptr, pixels, windowWidth*sizeof(uint32_t));
+  SDL_RenderCopy(renderer, texture, nullptr, nullptr);
   SDL_RenderPresent(renderer);
+}
+
+void Context::setPixel(uint32_t pixel, uint32_t position) {
+  pixels[(position - 0x10010000)/4] = pixel;
+}
+
+uint32_t Context::getPixel(uint32_t position) {
+  return pixels[(position - 0x10010000)/4];
 }
 
 Context::InputState Context::key(SDL_Keycode keycode) {
@@ -129,21 +150,14 @@ Context::InputState Context::button(int butt) {
   return buttons[butt];
 }
 
-// =============================================================================
-// Context::Image
-// =============================================================================
-
-Context::Image::Image(const string& fn) {
-  texture = IMG_LoadTexture(Context::renderer, fn.c_str());
-  SDL_QueryTexture(texture, nullptr, nullptr, &dstrect.w, &dstrect.h);
+int Context::getMouse() {
+  return (mousex << 16) | (mousey & 0xFFFF);
 }
 
-Context::Image::~Image() {
-  SDL_DestroyTexture(texture);
+int Context::getMouseDown() {
+  return (mousedownx << 16) | (mousedowny & 0xFFFF);
 }
 
-void Context::Image::render(int x, int y) {
-  dstrect.x = x;
-  dstrect.y = y;
-  SDL_RenderCopy(renderer, texture, nullptr, &dstrect);
+int Context::getMouseUp() {
+  return (mouseupx << 16) | (mouseupy & 0xFFFF);
 }
