@@ -8,27 +8,61 @@
 #ifndef IOCONTROLLER_HPP_
 #define IOCONTROLLER_HPP_
 
+// standard
+#include <map>
+
 // lib
 #include <systemc.h>
 
-// this
+// local
 #include "Thread.hpp"
 #include "Context.hpp"
 
+using namespace std;
+
 SC_MODULE(IOController) {
   bool quit;
+private:
+  bool contextReady;
   Thread windowThread;
-  
-  SC_CTOR(IOController) : quit(false), windowThread([&]() {
+  map<SDL_threadID, bool> contextClients;
+public:
+  SC_CTOR(IOController) : quit(false), contextReady(false), windowThread([&]() {
     Context::init("MSS", 512, 512);
+    contextReady = true;
     while (!quit && !Context::shouldQuit()) {
       Context::input();
       Context::render();
     }
-    Context::close();
     quit = true;
+    while (true) {
+      unsigned acked = 0;
+      for (auto& kv : contextClients) {
+        if (kv.second)
+          acked++;
+      }
+      if (acked == contextClients.size())
+        break;
+      Thread::sleep(50);
+    }
+    Context::close();
   }) {
     windowThread.start();
+  }
+  
+  void registerContextClient() {
+    SDL_threadID id = SDL_ThreadID();
+    if (contextClients.find(id) == contextClients.end())
+      contextClients[id] = false;
+    while (!contextReady)
+      Thread::sleep(50);
+  }
+  
+  void unregisterContextClient() {
+    SDL_threadID id = SDL_ThreadID();
+    if (contextClients.find(id) != contextClients.end())
+      contextClients[id] = true;
+    windowThread.join();
   }
 };
 

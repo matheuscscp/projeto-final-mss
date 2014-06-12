@@ -66,6 +66,10 @@ void Context::close() {
   SDL_Quit();
 }
 
+int Context::getWindowSize() {
+  return (windowWidth << 16) | (windowHeight & 0xFFFF);
+}
+
 bool Context::shouldQuit() {
   return quit;
 }

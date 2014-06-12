@@ -36,6 +36,7 @@ class Context {
   public:
     static void init(const char* title, int w, int h);
     static void close();
+    static int getWindowSize();
     static bool shouldQuit();
     static void input();
     static void render();
