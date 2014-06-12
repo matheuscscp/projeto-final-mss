@@ -124,13 +124,13 @@ void Context::input() {
 }
 
 void Context::render() {
-  SDL_UpdateTexture(texture, nullptr, pixels, windowWidth*sizeof(uint32_t));
   SDL_RenderCopy(renderer, texture, nullptr, nullptr);
   SDL_RenderPresent(renderer);
 }
 
 void Context::setPixel(uint32_t pixel, uint32_t position) {
   pixels[(position - 0x10010000)/4] = pixel;
+  SDL_UpdateTexture(texture, nullptr, pixels, windowWidth*sizeof(uint32_t));
 }
 
 uint32_t Context::getPixel(uint32_t position) {
