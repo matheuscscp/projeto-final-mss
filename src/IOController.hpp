@@ -50,7 +50,7 @@ public:
     windowThread.start();
   }
   
-  void registerContextClient() {
+  void init() {
     SDL_threadID id = SDL_ThreadID();
     if (contextClients.find(id) == contextClients.end())
       contextClients[id] = false;
@@ -58,7 +58,7 @@ public:
       Thread::sleep(50);
   }
   
-  void unregisterContextClient() {
+  void close() {
     SDL_threadID id = SDL_ThreadID();
     if (contextClients.find(id) != contextClients.end())
       contextClients[id] = true;
