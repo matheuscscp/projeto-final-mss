@@ -11,7 +11,8 @@ int main(int argc, char* argv[]) {
   
   IOController ioController("ioController");
   
-  ioController.waitContext();
+  ioController.registerContextClient();
+  ioController.unregisterContextClient();
   
   return 0;
 }
