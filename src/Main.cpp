@@ -5,28 +5,19 @@
  *      Author: Pimenta
  */
 
-#include "Context.hpp"
+#include "IOController.hpp"
 
 int main(int argc, char* argv[]) {
   
-  Context::init("MSS", 512, 512);
-
-  Context::setPixel(0xFFFFFF, 0x10010000);
-  Context::setPixel(0xFFFFFF, 0x10010000 + 2048);
-  Context::setPixel(0xFFFFFF, 0x10010000 + 4096);
-  Context::setPixel(0xFFFFFF, 0x10010000 + 12);
-  Context::setPixel(0xFFFFFF, 0x10010000 + 16);
-  Context::setPixel(0xFFFFFF, 0x10010000 + 20);
-  Context::setPixel(0xFFFFFF, 0x10010000 + 24);
-  Context::setPixel(0xFFFFFF, 0x10010000 + 28);
+  IOController ioController("ioController");
   
-  while (!Context::shouldQuit()) {
-    Context::input();
-    
-    Context::render();
+  while (!ioController.quit) {
+    if (Context::button(0)) {
+      int x = Context::getMouse() >> 16, y = Context::getMouse() & 0xFFFF;
+      Context::setPixel(0xFFFFFF, 0x10010000 + (y*512 + x)*4);
+    }
+    SDL_Delay(16);
   }
-  
-  Context::close();
   
   return 0;
 }
