@@ -11,9 +11,7 @@ int main(int argc, char* argv[]) {
   
   IOController ioController("ioController");
   
-  while (!ioController.quit) {
-    Thread::sleep(50);
-  }
+  ioController.waitContext();
   
   return 0;
 }

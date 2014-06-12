@@ -64,6 +64,10 @@ public:
       contextClients[id] = true;
     windowThread.join();
   }
+  
+  void waitContext() {
+    windowThread.join();
+  }
 };
 
 #endif /* IOCONTROLLER_HPP_ */
