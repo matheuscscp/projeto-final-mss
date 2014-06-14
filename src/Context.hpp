@@ -33,13 +33,16 @@ class Context {
     static SDL_Texture* texture;
     static uint32_t* pixels;
     static int windowWidth, windowHeight;
+    static bool isReady;
   public:
     static void init(const char* title, int w, int h);
     static void close();
-    static int getWindowSize();
-    static bool shouldQuit();
+    static bool ready();
+    static bool quitRequested();
     static void input();
     static void render();
+    
+    static int getWindowSize();
     static uint32_t getPixel(uint32_t position);
     static void setPixel(uint32_t pixel, uint32_t position);
     static InputState key(SDL_Keycode keycode);

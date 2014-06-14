@@ -37,6 +37,7 @@ uint32_t* Context::pixels = nullptr;
 SDL_Texture* Context::texture = nullptr;
 int Context::windowWidth;
 int Context::windowHeight;
+bool Context::isReady = false;
 
 void Context::init(const char* title, int w, int h) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER)) {
@@ -56,9 +57,11 @@ void Context::init(const char* title, int w, int h) {
   memset(pixels, 0, w*h*sizeof(uint32_t));
   windowWidth = w;
   windowHeight = h;
+  isReady = true;
 }
 
 void Context::close() {
+  isReady = false;
   delete[] pixels;
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
@@ -66,11 +69,11 @@ void Context::close() {
   SDL_Quit();
 }
 
-int Context::getWindowSize() {
-  return (windowWidth << 16) | (windowHeight & 0xFFFF);
+bool Context::ready() {
+  return isReady;
 }
 
-bool Context::shouldQuit() {
+bool Context::quitRequested() {
   return quit;
 }
 
@@ -132,13 +135,17 @@ void Context::render() {
   SDL_RenderPresent(renderer);
 }
 
-void Context::setPixel(uint32_t pixel, uint32_t position) {
-  pixels[(position - 0x10010000)/4] = pixel;
-  SDL_UpdateTexture(texture, nullptr, pixels, windowWidth*sizeof(uint32_t));
+int Context::getWindowSize() {
+  return (windowWidth << 16) | (windowHeight & 0xFFFF);
 }
 
 uint32_t Context::getPixel(uint32_t position) {
   return pixels[(position - 0x10010000)/4];
+}
+
+void Context::setPixel(uint32_t pixel, uint32_t position) {
+  pixels[(position - 0x10010000)/4] = pixel;
+  SDL_UpdateTexture(texture, nullptr, pixels, windowWidth*sizeof(uint32_t));
 }
 
 Context::InputState Context::key(SDL_Keycode keycode) {
