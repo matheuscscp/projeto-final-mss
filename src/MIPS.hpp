@@ -100,21 +100,17 @@ SC_MODULE(MIPS) {
     static bool inited = false;
     if (!inited) {
       inited = true;
-      paint();
+      int wSize = ioController->read(0x10), w = wSize >> 16, h = wSize & 0xFFFF;
+      for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+          ioController->write(0x0, bg.buf[(bg.height - 1 - y)*bg.width + x]);
+          ioController->write(0x4, 0x10010000 + (y*w + x)*4);
+        }
+      }
     }
     if (ioController->read(0x30))
       exit(0);
     Thread::sleep(33);
-  }
-  
-  void paint() {
-    int wSize = ioController->read(0x10), w = wSize >> 16, h = wSize & 0xFFFF;
-    for (int y = 0; y < h; y++) {
-      for (int x = 0; x < w; x++) {
-        ioController->write(0x0, bg.buf[(bg.height - 1 - y)*bg.width + x]);
-        ioController->write(0x4, 0x10010000 + (y*w + x)*4);
-      }
-    }
   }
   
   // ===========================================================================
