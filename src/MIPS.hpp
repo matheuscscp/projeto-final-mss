@@ -108,9 +108,12 @@ SC_MODULE(MIPS) {
         }
       }
     }
+    
     if (ioController->read(0x30))
       exit();
-    Thread::sleep(33);
+    
+    breg[4] = 33;
+    sleep();
   }
   
   // ===========================================================================
@@ -134,6 +137,9 @@ SC_MODULE(MIPS) {
   }
   void fileClose() { // v0 = 16
     fclose((FILE*)breg[4]);
+  }
+  void sleep() { // v0 = 32
+    Thread::sleep(breg[4]);
   }
 };
 
