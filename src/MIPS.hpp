@@ -109,27 +109,30 @@ SC_MODULE(MIPS) {
       }
     }
     if (ioController->read(0x30))
-      exit(0);
+      exit();
     Thread::sleep(33);
   }
   
   // ===========================================================================
-  // file syscalls
+  // syscalls (code in v0)
   // ===========================================================================
-  // v0 = 2
-  // a0 = 4
-  // a1 = 5
-  // a2 = 6
-  void fileOpen() {
+  // v0: 2
+  // a0: 4
+  // a1: 5
+  // a2: 6
+  void exit() { // v0 = 10
+    sc_stop();
+  }
+  void fileOpen() { // v0 = 13
     breg[2] = (uint32_t)fopen((const char*)breg[4], (const char*)breg[5]);
   }
-  void fileRead() {
+  void fileRead() { // v0 = 14
     breg[2] = (uint32_t)fread((void*)breg[5], breg[6], 1, (FILE*)breg[4]);
   }
-  void fileWrite() {
+  void fileWrite() { // v0 = 15
     breg[2] = (uint32_t)fwrite((const void*)breg[5], breg[6], 1, (FILE*)breg[4]);
   }
-  void fileClose() {
+  void fileClose() { // v0 = 16
     fclose((FILE*)breg[4]);
   }
 };
