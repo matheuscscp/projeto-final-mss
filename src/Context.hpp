@@ -10,7 +10,6 @@
 
 // standard
 #include <map>
-#include <string>
 
 // lib
 #include <SDL.h>
@@ -38,7 +37,6 @@ class Context {
     static void init(const char* title, int w, int h);
     static void close();
     static bool ready();
-    static bool quitRequested();
     static void input();
     static void render();
     
@@ -50,6 +48,7 @@ class Context {
     static int getMouse();
     static int getMouseDown();
     static int getMouseUp();
+    static bool quitRequested();
 };
 
 #endif /* CONTEXT_HPP_ */

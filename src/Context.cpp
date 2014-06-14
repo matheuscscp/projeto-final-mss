@@ -73,10 +73,6 @@ bool Context::ready() {
   return isReady;
 }
 
-bool Context::quitRequested() {
-  return quit;
-}
-
 void Context::input() {
   for (auto& kv : keys) {
     if (kv.second.second == JUST_PRESSED)
@@ -131,6 +127,7 @@ void Context::input() {
 }
 
 void Context::render() {
+  SDL_UpdateTexture(texture, nullptr, pixels, windowWidth*sizeof(uint32_t));
   SDL_RenderCopy(renderer, texture, nullptr, nullptr);
   SDL_RenderPresent(renderer);
 }
@@ -145,7 +142,6 @@ uint32_t Context::getPixel(uint32_t position) {
 
 void Context::setPixel(uint32_t pixel, uint32_t position) {
   pixels[(position - 0x10010000)/4] = pixel;
-  SDL_UpdateTexture(texture, nullptr, pixels, windowWidth*sizeof(uint32_t));
 }
 
 Context::InputState Context::key(SDL_Keycode keycode) {
@@ -171,4 +167,8 @@ int Context::getMouseDown() {
 
 int Context::getMouseUp() {
   return (mouseupx << 16) | (mouseupy & 0xFFFF);
+}
+
+bool Context::quitRequested() {
+  return quit;
 }

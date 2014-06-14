@@ -18,8 +18,6 @@ struct IOController : public readwrite_if {
   uint32_t addrRangeSize();
   uint32_t read(uint32_t addr);
   void write(uint32_t addr, uint32_t data);
-  
-  static bool& quit();
 };
 
 #endif /* IOCONTROLLER_HPP_ */

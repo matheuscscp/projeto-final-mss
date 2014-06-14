@@ -14,31 +14,26 @@
 
 static Thread windowThread([]{});
 static uint32_t* mem;
-static bool quit_;
-static bool ready2close;
+static bool quit;
 
 IOController::IOController(sc_core::sc_module_name) {
   windowThread = Thread([]() {
     Context::init("Modelagem de Sistemas em Silicio - 1/2014", 512, 512);
-    while (!quit_ && !Context::quitRequested()) {
+    while (!quit) {
       Context::input();
       Context::render();
     }
-    quit_ = true;
-    while (!ready2close)
-      Thread::sleep(50);
     Context::close();
   });
   windowThread.start();
   while (!Context::ready())
     Thread::sleep(50);
   mem = new uint32_t[addrRangeSize()];
-  quit_ = false;
-  ready2close = false;
+  quit = false;
 }
 
 IOController::~IOController() {
-  ready2close = true;
+  quit = true;
   windowThread.join();
   delete[] mem;
 }
@@ -59,9 +54,10 @@ IOController::~IOController() {
 // 0x24: getMouse::return
 // 0x28: getMouseDown::return
 // 0x2C: getMouseUp::return
+// 0x30: quitRequested::return
 
 uint32_t IOController::addrRangeSize() {
-  return 48;
+  return 52;
 }
 
 uint32_t IOController::read(uint32_t addr) {
@@ -95,6 +91,10 @@ uint32_t IOController::read(uint32_t addr) {
       mem[addr] = Context::getMouseUp();
       break;
       
+    case 12:
+      mem[addr] = Context::quitRequested();
+      break;
+      
     default:
       break;
   }
@@ -112,8 +112,4 @@ void IOController::write(uint32_t addr, uint32_t data) {
     default:
       break;
   }
-}
-
-bool& IOController::quit() {
-  return quit_;
 }
