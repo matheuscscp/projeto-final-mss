@@ -7,6 +7,7 @@
 
 #include "IOController.hpp"
 #include "Thread.hpp"
+#include "MIPS.hpp"
 
 SC_MODULE(Test) {
   sc_in<bool> clk;
