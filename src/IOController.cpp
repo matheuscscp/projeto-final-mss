@@ -12,20 +12,19 @@
 #include "Context.hpp"
 #include "Thread.hpp"
 
-#define ADDR_RANGE_SIZE 48
-
 static Thread windowThread([]{});
-static uint32_t mem[ADDR_RANGE_SIZE >> 2];
+static uint32_t* mem;
+static bool quit_;
+static bool ready2close;
 
-IOController::IOController(sc_core::sc_module_name) :
-quit(false), ready2close(false) {
-  windowThread = Thread([&]() {
+IOController::IOController(sc_core::sc_module_name) {
+  windowThread = Thread([]() {
     Context::init("Modelagem de Sistemas em Silicio - 1/2014", 512, 512);
-    while (!quit && !Context::quitRequested()) {
+    while (!quit_ && !Context::quitRequested()) {
       Context::input();
       Context::render();
     }
-    quit = true;
+    quit_ = true;
     while (!ready2close)
       Thread::sleep(50);
     Context::close();
@@ -33,30 +32,37 @@ quit(false), ready2close(false) {
   windowThread.start();
   while (!Context::ready())
     Thread::sleep(50);
-  addrRangeSize.initialize(ADDR_RANGE_SIZE);
+  mem = new uint32_t[addrRangeSize()];
+  quit_ = false;
+  ready2close = false;
 }
 
 IOController::~IOController() {
   ready2close = true;
   windowThread.join();
+  delete[] mem;
 }
 
 // =============================================================================
 // memory map
 // =============================================================================
 
-//  0: setPixel::pixel
-//  1: setPixel::position
-//  2: key::keycode
-//  3: key::return
-//  4: getWindowSize::return
-//  5: getPixel::position
-//  6: getPixel::return
-//  7: button::butt
-//  8: button::return
-//  9: getMouse::return
-// 10: getMouseDown::return
-// 11: getMouseUp::return
+// 0x00: setPixel::pixel
+// 0x04: setPixel::position
+// 0x08: key::keycode
+// 0x0C: key::return
+// 0x10: getWindowSize::return
+// 0x14: getPixel::position
+// 0x18: getPixel::return
+// 0x1C: button::butt
+// 0x20: button::return
+// 0x24: getMouse::return
+// 0x28: getMouseDown::return
+// 0x2C: getMouseUp::return
+
+uint32_t IOController::addrRangeSize() {
+  return 48;
+}
 
 uint32_t IOController::read(uint32_t addr) {
   addr >>= 2;
@@ -106,4 +112,8 @@ void IOController::write(uint32_t addr, uint32_t data) {
     default:
       break;
   }
+}
+
+bool& IOController::quit() {
+  return quit_;
 }

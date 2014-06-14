@@ -8,18 +8,18 @@
 #ifndef IOCONTROLLER_HPP_
 #define IOCONTROLLER_HPP_
 
-// lib
-#include <systemc.h>
+// local
+#include "readwrite_if.hpp"
 
-SC_MODULE(IOController) {
-  bool quit, ready2close;
-  sc_out<uint32_t> addrRangeSize;
-  
+struct IOController : public readwrite_if {
   SC_CTOR(IOController);
   ~IOController();
   
+  uint32_t addrRangeSize();
   uint32_t read(uint32_t addr);
   void write(uint32_t addr, uint32_t data);
+  
+  static bool& quit();
 };
 
 #endif /* IOCONTROLLER_HPP_ */
