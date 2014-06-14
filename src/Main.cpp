@@ -11,8 +11,8 @@ int main(int argc, char* argv[]) {
   
   IOController ioController("ioController");
   
-  ioController.init();
-  ioController.close();
+  
+  
   
   return 0;
 }

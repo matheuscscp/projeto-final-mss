@@ -12,12 +12,11 @@
 #include <systemc.h>
 
 SC_MODULE(IOController) {
-  bool quit;
+  bool quit, ready2close;
   sc_out<uint32_t> addrRangeSize;
   
   SC_CTOR(IOController);
-  void init();
-  void close();
+  ~IOController();
   
   uint32_t read(uint32_t addr);
   void write(uint32_t addr, uint32_t data);

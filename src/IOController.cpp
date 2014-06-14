@@ -8,22 +8,17 @@
 // this
 #include "IOController.hpp"
 
-// standard
-#include <map>
-
 // local
 #include "Context.hpp"
 #include "Thread.hpp"
 
 #define ADDR_RANGE_SIZE 48
 
-using namespace std;
-
 static Thread windowThread([]{});
-static map<SDL_threadID, bool> contextClients;
-static uint32_t mem[10];
+static uint32_t mem[ADDR_RANGE_SIZE >> 2];
 
-IOController::IOController(sc_core::sc_module_name) : quit(false){
+IOController::IOController(sc_core::sc_module_name) :
+quit(false), ready2close(false) {
   windowThread = Thread([&]() {
     Context::init("Modelagem de Sistemas em Silicio - 1/2014", 512, 512);
     while (!quit && !Context::quitRequested()) {
@@ -31,34 +26,18 @@ IOController::IOController(sc_core::sc_module_name) : quit(false){
       Context::render();
     }
     quit = true;
-    while (true) {
-      unsigned acked = 0;
-      for (auto& kv : contextClients) {
-        if (kv.second)
-          acked++;
-      }
-      if (acked == contextClients.size())
-        break;
+    while (!ready2close)
       Thread::sleep(50);
-    }
     Context::close();
   });
   windowThread.start();
+  while (!Context::ready())
+    Thread::sleep(50);
   addrRangeSize.initialize(ADDR_RANGE_SIZE);
 }
 
-void IOController::init() {
-  SDL_threadID id = SDL_ThreadID();
-  if (contextClients.find(id) == contextClients.end())
-    contextClients[id] = false;
-  while (!Context::ready())
-    Thread::sleep(50);
-}
-
-void IOController::close() {
-  SDL_threadID id = SDL_ThreadID();
-  if (contextClients.find(id) != contextClients.end())
-    contextClients[id] = true;
+IOController::~IOController() {
+  ready2close = true;
   windowThread.join();
 }
 
