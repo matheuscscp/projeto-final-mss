@@ -12,7 +12,6 @@
 #include <systemc.h>
 
 struct readwrite_if : public sc_module, public sc_interface {
-  virtual uint32_t addrRangeSize() = 0;
   virtual uint32_t read(uint32_t addr) = 0;
   virtual void write(uint32_t addr, uint32_t data) = 0;
 };

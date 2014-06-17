@@ -56,10 +56,6 @@ IOController::~IOController() {
 
 // attention: everything, except video buffer, is read-only
 
-uint32_t IOController::addrRangeSize() {
-  return 0x00400114;
-}
-
 uint32_t IOController::read(uint32_t addr) {
   switch (addr) {
     case 0x00400100:  return Context::button(0);
