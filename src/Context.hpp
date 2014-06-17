@@ -15,23 +15,16 @@
 #include <SDL.h>
 
 class Context {
-  public:
-    enum InputState {
-      PRESSED = 0,
-      JUST_PRESSED,
-      RELEASED,
-      JUST_RELEASED
-    };
   private:
-    static std::map<SDL_Keycode, std::pair<bool, InputState>> keys;
-    static InputState buttons[6];
+    static std::map<SDL_Keycode, bool> keys;
+    static bool buttons[6];
     static int mousex, mousey, mousedownx, mousedowny, mouseupx, mouseupy;
     static SDL_Window* window;
     static SDL_Renderer* renderer;
     static bool quit;
     static SDL_Texture* texture;
     static uint32_t* pixels;
-    static int windowWidth, windowHeight;
+    static uint32_t windowWidth, windowHeight;
     static bool isReady;
   public:
     static void init(const char* title, int w, int h);
@@ -43,8 +36,8 @@ class Context {
     static int getWindowSize();
     static uint32_t getPixel(uint32_t position);
     static void setPixel(uint32_t pixel, uint32_t position);
-    static InputState key(SDL_Keycode keycode);
-    static InputState button(int butt);
+    static bool key(SDL_Keycode keycode);
+    static bool button(int butt);
     static int getMouse();
     static int getMouseDown();
     static int getMouseUp();
