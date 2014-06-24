@@ -108,11 +108,16 @@ SC_MODULE(MIPS) {
     }
     
     if (ioController->read(0x00400000 + 'w') == 1) {
+      printf("Insert a string: ");
+      fflush(stdout);
       std::string tmp;
       char c;
-      while ((c = ioController->read(0x00400114)) != '\r')
+      while ((c = ioController->read(0x00400114)) != '\r') {
         tmp += c;
-      printf("%s\n", tmp.c_str());
+        printf("%c", c);
+        fflush(stdout);
+      }
+      printf("\nString inserted: %s\n", tmp.c_str());
       fflush(stdout);
     }
     
