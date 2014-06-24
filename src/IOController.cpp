@@ -53,6 +53,8 @@ IOController::~IOController() {
 //             was pressed (x[31:16], y[15:0])
 // 0x00400110: 4-byte mouse position in pixels in the last time a mouse button
 //             was released (x[31:16], y[15:0])
+// 0x00400114: 4-byte ascii code (reading from this address will
+//             suspend the thread until the user press a key)
 
 // attention: everything, except video buffer, is read-only
 
@@ -65,6 +67,7 @@ uint32_t IOController::read(uint32_t addr) {
     case 0x00400108:  return Context::getMouse();
     case 0x0040010C:  return Context::getMouseDown();
     case 0x00400110:  return Context::getMouseUp();
+    case 0x00400114:  return Context::readKey();
     default:
       if (addr < 0x00400000) return Context::getPixel(addr);
       if (addr < 0x00400100) return Context::key(addr - 0x00400000);

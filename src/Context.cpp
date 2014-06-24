@@ -16,6 +16,9 @@
 // lib
 #include <SDL_image.h>
 
+// local
+#include "Thread.hpp"
+
 using namespace std;
 
 // =============================================================================
@@ -38,6 +41,7 @@ SDL_Texture* Context::texture = nullptr;
 uint32_t Context::windowWidth;
 uint32_t Context::windowHeight;
 bool Context::isReady = false;
+uint32_t Context::keyDown = 0;
 
 void Context::init(const char* title, int w, int h) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER)) {
@@ -81,6 +85,7 @@ void Context::input() {
     switch (event.type) {
       case SDL_KEYDOWN:
         keys[event.key.keysym.sym] = true;
+        keyDown = event.key.keysym.sym;
         break;
         
       case SDL_KEYUP:
@@ -156,4 +161,11 @@ int Context::getMouseUp() {
 
 bool Context::quitRequested() {
   return quit;
+}
+
+uint32_t Context::readKey() {
+  uint32_t oldKey = keyDown;
+  while (oldKey == keyDown)
+    Thread::sleep(20);
+  return keyDown;
 }

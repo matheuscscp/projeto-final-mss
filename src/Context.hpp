@@ -26,6 +26,7 @@ class Context {
     static uint32_t* pixels;
     static uint32_t windowWidth, windowHeight;
     static bool isReady;
+    static uint32_t keyDown;
   public:
     static void init(const char* title, int w, int h);
     static void close();
@@ -42,6 +43,7 @@ class Context {
     static int getMouseDown();
     static int getMouseUp();
     static bool quitRequested();
+    static uint32_t readKey();
 };
 
 #endif /* CONTEXT_HPP_ */

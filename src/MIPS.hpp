@@ -107,8 +107,12 @@ SC_MODULE(MIPS) {
       }
     }
     
-    if (ioController->read(0x00400000 + 'a') == 1) {
-      printf("apertou a\n");
+    if (ioController->read(0x00400000 + 'w') == 1) {
+      std::string tmp;
+      char c;
+      while ((c = ioController->read(0x00400114)) != '\r')
+        tmp += c;
+      printf("%s\n", tmp.c_str());
       fflush(stdout);
     }
     
