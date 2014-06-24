@@ -12,11 +12,15 @@
 #include "readwrite_if.hpp"
 
 struct IOController : public readwrite_if {
-  SC_CTOR(IOController);
-  ~IOController();
-  
-  uint32_t read(uint32_t addr);
-  void write(uint32_t addr, uint32_t data);
+  public:
+    typedef IOController SC_CURRENT_USER_MODULE;
+    IOController(sc_core::sc_module_name, uint32_t start_addr);
+    ~IOController();
+    
+    uint32_t size();
+    
+    void read(uint32_t src, uint32_t bytes, void* dst);
+    void write(uint32_t dst, uint32_t bytes, void* src);
 };
 
 #endif /* IOCONTROLLER_HPP_ */

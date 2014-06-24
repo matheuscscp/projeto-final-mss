@@ -11,7 +11,7 @@
 int main(int argc, char* argv[]) {
   
   MIPS mips("mips");
-  IOController ioController("ioController");
+  IOController ioController("ioController", 0xFF000000);
   sc_clock clk;
   
   mips.clk(clk);

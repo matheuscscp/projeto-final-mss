@@ -97,31 +97,37 @@ SC_MODULE(MIPS) {
   }
   
   void exec() {
+    uint32_t ioWord;
+    
     static bool inited = false;
     if (!inited) {
       inited = true;
-      int wSize = ioController->read(0x00400104), w = wSize >> 16, h = wSize & 0xFFFF;
+      ioController->read(0xFF400104, 4, &ioWord);
+      int w = ioWord >> 16, h = ioWord & 0xFFFF;
       for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++)
-          ioController->write((y*w + x)*4, bg.buf[(bg.height - 1 - y)*bg.width + x]);
+          ioController->write(0xFF000000 + ((y*w + x) << 2), 4, &bg.buf[(bg.height - 1 - y)*bg.width + x]);
       }
     }
     
-    if (ioController->read(0x00400000 + 'w') == 1) {
+    ioController->read(0xFF400000 + 'w', 4, &ioWord);
+    if (ioWord == 1) {
       printf("Insert a string: ");
       fflush(stdout);
       std::string tmp;
-      char c;
-      while ((c = ioController->read(0x00400114)) != '\r') {
-        tmp += c;
-        printf("%c", c);
+      ioController->read(0xFF400114, 4, &ioWord);
+      while (ioWord != '\r') {
+        tmp += char(ioWord);
+        printf("%c", char(ioWord));
         fflush(stdout);
+        ioController->read(0xFF400114, 4, &ioWord);
       }
       printf("\nString inserted: %s\n", tmp.c_str());
       fflush(stdout);
     }
     
-    if (ioController->read(0x00400102))
+    ioController->read(0xFF400102, 4, &ioWord);
+    if (ioWord)
       exit();
     
     breg[4] = 33;

@@ -15,7 +15,8 @@
 static Thread windowThread([]{});
 static bool quit;
 
-IOController::IOController(sc_core::sc_module_name) {
+IOController::IOController(sc_core::sc_module_name, uint32_t start_addr) :
+readwrite_if(start_addr) {
   quit = false;
   windowThread = Thread([]() {
     Context::init("Modelagem de Sistemas em Silicio - 1/2014", 512, 512);
@@ -58,23 +59,29 @@ IOController::~IOController() {
 
 // attention: everything, except video buffer, is read-only
 
-uint32_t IOController::read(uint32_t addr) {
-  switch (addr) {
-    case 0x00400100:  return Context::button(0);
-    case 0x00400101:  return Context::button(1);
-    case 0x00400102:  return Context::quitRequested();
-    case 0x00400104:  return Context::getWindowSize();
-    case 0x00400108:  return Context::getMouse();
-    case 0x0040010C:  return Context::getMouseDown();
-    case 0x00400110:  return Context::getMouseUp();
-    case 0x00400114:  return Context::readKey();
-    default:
-      if (addr < 0x00400000) return Context::getPixel(addr);
-      if (addr < 0x00400100) return Context::key(addr - 0x00400000);
-  }
-  return 0;
+uint32_t IOController::size() {
+  return 0x00400118;
 }
 
-void IOController::write(uint32_t addr, uint32_t data) {
-  if (addr < 0x00400000) Context::setPixel(data, addr);
+void IOController::read(uint32_t src, uint32_t bytes, void* dst) {
+  src -= start_addr;
+  uint32_t* ptr = (uint32_t*)dst;
+  switch (src) {
+    case 0x00400100:  *ptr = Context::button(0);        break;
+    case 0x00400101:  *ptr = Context::button(1);        break;
+    case 0x00400102:  *ptr = Context::quitRequested();  break;
+    case 0x00400104:  *ptr = Context::getWindowSize();  break;
+    case 0x00400108:  *ptr = Context::getMouse();       break;
+    case 0x0040010C:  *ptr = Context::getMouseDown();   break;
+    case 0x00400110:  *ptr = Context::getMouseUp();     break;
+    case 0x00400114:  *ptr = Context::readKey();        break;
+    default:
+      if (src < 0x00400000) *ptr = Context::getPixel(src);
+      if (src < 0x00400100) *ptr = Context::key(src - 0x00400000);
+  }
+}
+
+void IOController::write(uint32_t dst, uint32_t bytes, void* src) {
+  dst -= start_addr;
+  if (dst < 0x00400000) Context::setPixel(*((uint32_t*)src), dst);
 }

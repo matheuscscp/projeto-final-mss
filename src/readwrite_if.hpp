@@ -12,8 +12,16 @@
 #include <systemc.h>
 
 struct readwrite_if : public sc_module, public sc_interface {
-  virtual uint32_t read(uint32_t addr) = 0;
-  virtual void write(uint32_t addr, uint32_t data) = 0;
+  protected:
+    uint32_t start_addr;
+  public:
+    readwrite_if(uint32_t start_addr);
+    
+    virtual uint32_t start_address();
+    virtual uint32_t size() = 0;
+    
+    virtual void read(uint32_t src, uint32_t bytes, void* dst) = 0;
+    virtual void write(uint32_t dst, uint32_t bytes, void* src) = 0;
 };
 
 #endif /* READWRITE_IF_HPP_ */
