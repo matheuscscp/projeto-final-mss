@@ -42,6 +42,7 @@ uint32_t Context::windowWidth;
 uint32_t Context::windowHeight;
 bool Context::isReady = false;
 uint32_t Context::keyDown = 0;
+bool Context::keyDownFlipFlop = false;
 
 void Context::init(const char* title, int w, int h) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER)) {
@@ -86,6 +87,7 @@ void Context::input() {
       case SDL_KEYDOWN:
         keys[event.key.keysym.sym] = true;
         keyDown = event.key.keysym.sym;
+        keyDownFlipFlop = !keyDownFlipFlop;
         break;
         
       case SDL_KEYUP:
@@ -164,8 +166,8 @@ bool Context::quitRequested() {
 }
 
 uint32_t Context::readKey() {
-  uint32_t oldKey = keyDown;
-  while (oldKey == keyDown)
+  bool clk = keyDownFlipFlop;
+  while (clk == keyDownFlipFlop)
     Thread::sleep(20);
   return keyDown;
 }

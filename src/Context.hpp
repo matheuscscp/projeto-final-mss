@@ -27,6 +27,7 @@ class Context {
     static uint32_t windowWidth, windowHeight;
     static bool isReady;
     static uint32_t keyDown;
+    static bool keyDownFlipFlop;
   public:
     static void init(const char* title, int w, int h);
     static void close();
