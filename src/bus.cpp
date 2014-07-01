@@ -49,30 +49,41 @@ void simple_bus::main_action()
 
 void simple_bus::handle_request(void)
 {
+
+    m_current_request->status = BUS_WAIT;
     readwrite_if *slave = get_slave(m_current_request->address);
+
+    if (!slave) {
+        m_current_request->status = BUS_ERROR;
+        m_current_request = (simple_bus_request *)0;
+        m_current_request->transfer_done.notify();
+        return;
+    }
 
     if (m_current_request->do_write == WRITE)
         slave->write(m_current_request->address, m_current_request->qteBytes, m_current_request->data);
     else
         slave->read(m_current_request->address, m_current_request->qteBytes, m_current_request->data);
 
-    //    m_current_request->transfer_done.notify(); //sera necessario? e bloqueante?
+    m_current_request->transfer_done.notify();
+    m_current_request->status = BUS_OK;
 
     //Limpa request
     m_current_request = (simple_bus_request *)0;
 
 }
 
-simple_bus_request * simple_bus::get_request(void)
+simple_bus_request * simple_bus::get_request(unsigned int priority)
 {
     simple_bus_request *request = (simple_bus_request *)0;
     for (unsigned int i = 0; i < m_requests.size(); ++i)
     {
         request = m_requests[i];
-        if (request)
+        if (request && (request->priority == priority))
             return request;
     }
     request = new simple_bus_request;
+    request->priority = priority;
     m_requests.push_back(request);
     return request;
 }
@@ -90,30 +101,43 @@ readwrite_if *simple_bus::get_slave(uint32_t address)
     return (readwrite_if *)0;
 }
 
+bus_status simple_bus::get_status(unsigned int unique_priority)
+{
+    return get_request(unique_priority)->status;
+}
+
 //----------------------------------------------------------------------------
 //-- Read / Write master
 //----------------------------------------------------------------------------
 
-uint32_t simple_bus::read(uint32_t src, uint32_t bytes, void* dst)
+void simple_bus::read(unsigned int unique_priority, uint32_t src, uint32_t bytes, void* dst)
 {
 
-    simple_bus_request *request = get_request();
+    simple_bus_request *request = get_request(unique_priority);
 
     request->do_write           = READ;
     request->address            = src;
     request->qteBytes           = bytes;
     request->data               = dst;
+    request->status             = BUS_REQUEST;
+
+
+    wait(request->transfer_done);
+    wait(clock->posedge_event());
 
 }
 
-void simple_bus::write(uint32_t dst, uint32_t bytes, void* src)
+void simple_bus::write(unsigned int unique_priority, uint32_t dst, uint32_t bytes, void* src)
 {
 
-    simple_bus_request *request = get_request();
+    simple_bus_request *request = get_request(unique_priority);
 
     request->do_write           = WRITE;
     request->address            = src;
     request->qteBytes           = bytes;
     request->data               = src;
+    request->status             = BUS_REQUEST;
 
+    wait(request->transfer_done);
+    wait(clock->posedge_event());
 }

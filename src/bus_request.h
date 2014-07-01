@@ -7,14 +7,21 @@
 enum simple_bus_commands { READ = 0
                            , WRITE };
 
+enum bus_status { BUS_OK = 0
+                  , BUS_REQUEST
+                  , BUS_WAIT
+                  , BUS_ERROR };
+
 struct simple_bus_request
 {
 
-    // request parameters
-    bool do_write;
-    uint32_t address;
-    uint32_t qteBytes;
-    void *data;
+    unsigned int priority;  //Prioridade do master
+    bool do_write;          //Seleciona read/write
+    uint32_t address;       //Endereco acessado
+    uint32_t qteBytes;      //Quantidade em bytes a ser enviado
+    void *data;             //Ponteiro onde sera lido/salvo a informacao do slave
+
+    bus_status status;      //Status do barramento
 
     // request status
     sc_event transfer_done;
@@ -24,10 +31,12 @@ struct simple_bus_request
 };
 
 inline simple_bus_request::simple_bus_request()
-    : do_write(READ)
+    : priority(0)
+    , do_write(READ)
     , address(0)
     , qteBytes(4)
     , data((void *)0)
+    , status (BUS_OK)
 {}
 
 #endif

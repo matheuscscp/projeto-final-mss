@@ -6,9 +6,11 @@
 #include "bus_types.h"
 #include "bus_request.h"
 #include "readwrite_if.hpp"
+#include "master_readwrite_if.hpp"
 
 class simple_bus
-  : public sc_module
+  : public master_readwrite_if
+  , public sc_module
 {
 public:
   // ports
@@ -32,14 +34,17 @@ public:
   void main_action();
 
   //  BUS interface - master
-  void read(uint32_t src, uint32_t bytes, void* dst);
-  void write(uint32_t dst, uint32_t bytes, void* src);
+  void read(unsigned int unique_priority, uint32_t src, uint32_t bytes, void* dst);
+  void write(unsigned int unique_priority,uint32_t dst, uint32_t bytes, void* src);
+
+    bus_status get_status(unsigned int unique_priority);
 
 private:
   void handle_request(void);
   void end_of_elaboration(void);
   readwrite_if * get_slave(uint32_t address);
-  simple_bus_request * get_request(void);
+
+  simple_bus_request * get_request(unsigned int priority);
 
 
 private:
