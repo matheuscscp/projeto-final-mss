@@ -17,21 +17,22 @@
 #include "readwrite_if.hpp"
 
 struct Bitmap {
-  short magic_number;
-  int file_size;
-  int reserved;
-  int header_size;
-  int data_distance;
-  int width;
-  int height;
-  short planes;
-  short bpp;
-  int compression;
-  int data_size;
-  int horizontal_resolution;
-  int vertical_resolution;
-  int palette_size;
-  int important_colors;
+  uint16_t unused0;
+  uint16_t magic_number;
+  uint32_t file_size;
+  uint32_t reserved;
+  uint32_t header_size;
+  uint32_t data_distance;
+  uint32_t width;
+  uint32_t height;
+  uint16_t planes;
+  uint16_t bpp;
+  uint32_t compression;
+  uint32_t data_size;
+  uint32_t horizontal_resolution;
+  uint32_t vertical_resolution;
+  uint32_t palette_size;
+  uint32_t important_colors;
   uint32_t* buf;
 };
 
@@ -54,35 +55,7 @@ SC_MODULE(MIPS) {
     fileOpen();
     breg[4] = breg[2];
     
-    breg[5] = (uint32_t)&bg.magic_number; breg[6] = 2;
-    fileRead();
-    breg[5] = (uint32_t)&bg.file_size; breg[6] = 4;
-    fileRead();
-    breg[5] = (uint32_t)&bg.reserved; breg[6] = 4;
-    fileRead();
-    breg[5] = (uint32_t)&bg.header_size; breg[6] = 4;
-    fileRead();
-    breg[5] = (uint32_t)&bg.data_distance; breg[6] = 4;
-    fileRead();
-    breg[5] = (uint32_t)&bg.width; breg[6] = 4;
-    fileRead();
-    breg[5] = (uint32_t)&bg.height; breg[6] = 4;
-    fileRead();
-    breg[5] = (uint32_t)&bg.planes; breg[6] = 2;
-    fileRead();
-    breg[5] = (uint32_t)&bg.bpp; breg[6] = 2;
-    fileRead();
-    breg[5] = (uint32_t)&bg.compression; breg[6] = 4;
-    fileRead();
-    breg[5] = (uint32_t)&bg.data_size; breg[6] = 4;
-    fileRead();
-    breg[5] = (uint32_t)&bg.horizontal_resolution; breg[6] = 4;
-    fileRead();
-    breg[5] = (uint32_t)&bg.vertical_resolution; breg[6] = 4;
-    fileRead();
-    breg[5] = (uint32_t)&bg.palette_size; breg[6] = 4;
-    fileRead();
-    breg[5] = (uint32_t)&bg.important_colors; breg[6] = 4;
+    breg[5] = (uint32_t)&bg.magic_number; breg[6] = 54;
     fileRead();
     
     bg.buf = new uint32_t[bg.width*bg.height];
