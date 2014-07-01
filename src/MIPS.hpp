@@ -15,6 +15,7 @@
 #include "Context.hpp"
 #include "Thread.hpp"
 #include "readwrite_if.hpp"
+#include "master_readwrite_if.hpp"
 
 struct Bitmap {
   short magic_number;
@@ -37,7 +38,7 @@ struct Bitmap {
 
 SC_MODULE(MIPS) {
   sc_in<bool> clk;
-  sc_port<readwrite_if> ioController;
+  sc_port<master_readwrite_if> ioController;
   
   uint32_t breg[32];
   

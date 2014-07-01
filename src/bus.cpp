@@ -133,7 +133,7 @@ void simple_bus::write(unsigned int unique_priority, uint32_t dst, uint32_t byte
     simple_bus_request *request = get_request(unique_priority);
 
     request->do_write           = WRITE;
-    request->address            = src;
+    request->address            = uint32_t(src);
     request->qteBytes           = bytes;
     request->data               = src;
     request->status             = BUS_REQUEST;
