@@ -17,7 +17,7 @@ struct readwrite_if : public sc_module, public sc_interface {
   public:
     readwrite_if(uint32_t start_addr);
     
-    virtual uint32_t start_address();
+    uint32_t start_address();
     virtual uint32_t size() = 0;
     
     virtual void read(uint32_t src, uint32_t bytes, void* dst) = 0;
