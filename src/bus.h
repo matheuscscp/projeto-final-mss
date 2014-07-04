@@ -35,7 +35,7 @@ public:
 
   //  BUS interface - master
   void read(unsigned int unique_priority, uint32_t src, uint32_t bytes, void* dst);
-  void write(unsigned int unique_priority,uint32_t dst, uint32_t bytes, void* src);
+  void write(unsigned int unique_priority, uint32_t dst, uint32_t bytes, void* src);
 
     bus_status get_status(unsigned int unique_priority);
 

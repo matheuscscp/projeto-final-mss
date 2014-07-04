@@ -4,7 +4,7 @@
 #include <systemc.h>
 
 class master_readwrite_if
-  : public virtual sc_interface
+  : public sc_interface
 {
 public:
     virtual void read(unsigned int unique_priority, uint32_t src, uint32_t bytes, void* dst) = 0;

@@ -31,16 +31,20 @@ void simple_bus::end_of_elaboration(void)
 void simple_bus::main_action()
 {
 
-   printf("[DEBUG] BUS - Pulso de descida \n");
+//   printf("[DEBUG] BUS - Pulso de descida \n");
  
-    if (!m_current_request){
-        m_current_request = m_requests[0];
-    }
-    else{
-        printf("Tempo: %g   Endereco: [%d]\n", sc_time_stamp().to_double(), m_current_request->address);
-    }
-    if (m_current_request)
-        handle_request();
+//    if (!m_current_request){
+//        m_current_request = m_requests.back();
+//        m_requests.pop_back();
+
+//         handle_request();
+
+//    }
+//    else{
+//        printf("Tempo: %g   Endereco: [%d]\n", sc_time_stamp().to_double(), m_current_request->address);
+//    }
+//    if (m_current_request)
+//        handle_request();
 
 }
 
@@ -59,8 +63,8 @@ void simple_bus::handle_request(void)
 
     if (!slave) {
         m_current_request->status = BUS_ERROR;
-        m_current_request = (simple_bus_request *)0;
         m_current_request->transfer_done.notify();
+        m_current_request = (simple_bus_request *)0;
         return;
     }
 
@@ -117,6 +121,9 @@ bus_status simple_bus::get_status(unsigned int unique_priority)
 void simple_bus::read(unsigned int unique_priority, uint32_t src, uint32_t bytes, void* dst)
 {
 
+
+    printf("[DEBUG] BUS - Chamou read do BUS \n");
+
     simple_bus_request *request = get_request(unique_priority);
 
     request->do_write           = READ;
@@ -125,8 +132,16 @@ void simple_bus::read(unsigned int unique_priority, uint32_t src, uint32_t bytes
     request->data               = dst;
     request->status             = BUS_REQUEST;
 
-    //wait(request->transfer_done);
-   // wait(clock->posedge_event());
+    slave_port[0]->read(request->address, request->qteBytes, request->data);
+//    slave_port[0]->read(src, bytes, dst);
+
+    printf("[DEBUG] BUS - Terminou leitura BUS \n");
+    request=(simple_bus_request *)0;
+
+
+   // handle_request();
+//    wait(request->transfer_done);
+//    wait(clock->posedge_event());
 
 }
 
@@ -137,10 +152,16 @@ void simple_bus::write(unsigned int unique_priority, uint32_t dst, uint32_t byte
     simple_bus_request *request = get_request(unique_priority);
 
     request->do_write           = WRITE;
-    request->address            = uint32_t(src);
+    request->address            = dst;
     request->qteBytes           = bytes;
     request->data               = src;
     request->status             = BUS_REQUEST;
+
+//    slave_port[0]->write(dst, bytes, src);
+    slave_port[0]->write(request->address, request->qteBytes, request->data);
+
+    request=(simple_bus_request *)0;
+
 
    printf("[DEBUG] BUS - Terminou escrita BUS \n");
    // wait(request->transfer_done);

@@ -41,7 +41,7 @@ struct Bitmap {
 
 SC_MODULE(MIPS) {
   sc_in<bool> clk;
- // sc_port<readwrite_if> bus_port;
+//  sc_port<readwrite_if> bus_port_IO;
   sc_port<master_readwrite_if> bus_port;
   
   uint32_t breg[32];
@@ -108,14 +108,16 @@ SC_MODULE(MIPS) {
     static bool inited = false;
     if (!inited) {
       inited = true;
-      bus_port->read(m_unique_priority, 0xFF400104, 4, &ioWord);
+      bus_port->read(1, 0xFF400104, 4, &ioWord);
       int w = ioWord >> 16, h = ioWord & 0xFFFF;
-       
-   printf("[DEBUG] MIPS - Vou chamar write do BUS \n");
+
+      printf("[DEBUG] MIPS - Vou chamar write do BUS \n");
 
       for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++)
-          bus_port->write(m_unique_priority, 0xFF000000 + ((y*w + x) << 2), 4, &bg.buf[(bg.height - 1 - y)*bg.width + x]);
+//            bus_port_IO->write(0xFF000000 + ((y*w + x) << 2), 4, &bg.buf[(bg.height - 1 - y)*bg.width + x]);
+        bus_port->write(m_unique_priority, 0xFF000000 + ((y*w + x) << 2), 4, &bg.buf[(bg.height - 1 - y)*bg.width + x]);
+
       }
     }
     
