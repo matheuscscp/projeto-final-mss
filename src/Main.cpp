@@ -9,16 +9,19 @@
 #include "IOController.hpp"
 #include "bus.h"
 
-int main(int argc, char* argv[]) {
+int sc_main(int argc, char* argv[]) {
 
     MIPS mips("mips");
     IOController ioController("ioController", 0xFF000000);
     simple_bus bus("bus");
     sc_clock clk;
+ //sc_clock clk("_Clock", 10, SC_NS,0.5, 1, SC_NS);
+
+
 
     mips.clk(clk);
-    //  mips.ioController(ioController);
-    mips.ioController(bus);
+      mips.bus_port(bus);
+    //mips.ioController(bus);
 
     bus.clock(clk);
     bus.slave_port(ioController);

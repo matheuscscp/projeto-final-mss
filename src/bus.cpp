@@ -2,6 +2,8 @@
 
 void simple_bus::end_of_elaboration(void)
 {
+    printf("[DEBUG] BUS - Verificando mapeamento da memoria \n");
+
     // check por overlapping na area de memoria dos slaves
     bool no_overlap;
     for (int i = 1; i < slave_port.size(); ++i) {
@@ -29,8 +31,10 @@ void simple_bus::end_of_elaboration(void)
 void simple_bus::main_action()
 {
 
+   printf("[DEBUG] BUS - Pulso de descida \n");
+ 
     if (!m_current_request){
-        m_current_request = m_requests;
+        m_current_request = m_requests[0];
     }
     else{
         printf("Tempo: %g   Endereco: [%d]\n", sc_time_stamp().to_double(), m_current_request->address);
@@ -121,15 +125,15 @@ void simple_bus::read(unsigned int unique_priority, uint32_t src, uint32_t bytes
     request->data               = dst;
     request->status             = BUS_REQUEST;
 
-
-    wait(request->transfer_done);
-    wait(clock->posedge_event());
+    //wait(request->transfer_done);
+   // wait(clock->posedge_event());
 
 }
 
 void simple_bus::write(unsigned int unique_priority, uint32_t dst, uint32_t bytes, void* src)
 {
 
+   printf("[DEBUG] BUS - Chamou write do BUS \n");
     simple_bus_request *request = get_request(unique_priority);
 
     request->do_write           = WRITE;
@@ -138,6 +142,7 @@ void simple_bus::write(unsigned int unique_priority, uint32_t dst, uint32_t byte
     request->data               = src;
     request->status             = BUS_REQUEST;
 
-    wait(request->transfer_done);
-    wait(clock->posedge_event());
+   printf("[DEBUG] BUS - Terminou escrita BUS \n");
+   // wait(request->transfer_done);
+   // wait(clock->posedge_event());
 }

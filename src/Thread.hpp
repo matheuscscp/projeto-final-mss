@@ -11,6 +11,8 @@
 // standard
 #include <functional>
 
+#include <iostream>
+
 class Thread {
   private:
     std::function<void()> f;

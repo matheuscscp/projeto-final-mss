@@ -8,11 +8,13 @@
 #ifndef CONTEXT_HPP_
 #define CONTEXT_HPP_
 
+#include <iostream>
+
 // standard
 #include <map>
 
 // lib
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 class Context {
   private:

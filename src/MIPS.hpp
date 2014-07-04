@@ -14,8 +14,11 @@
 // local
 #include "Context.hpp"
 #include "Thread.hpp"
-#include "readwrite_if.hpp"
+//#include "readwrite_if.hpp"
 #include "master_readwrite_if.hpp"
+
+
+unsigned int m_unique_priority = 1;
 
 struct Bitmap {
   short magic_number;
@@ -38,7 +41,8 @@ struct Bitmap {
 
 SC_MODULE(MIPS) {
   sc_in<bool> clk;
-  sc_port<master_readwrite_if> ioController;
+ // sc_port<readwrite_if> bus_port;
+  sc_port<master_readwrite_if> bus_port;
   
   uint32_t breg[32];
   
@@ -91,6 +95,7 @@ SC_MODULE(MIPS) {
     fileRead();
     
     fileClose();
+
   }
   
   ~MIPS() {
@@ -103,31 +108,36 @@ SC_MODULE(MIPS) {
     static bool inited = false;
     if (!inited) {
       inited = true;
-      ioController->read(0xFF400104, 4, &ioWord);
+      bus_port->read(m_unique_priority, 0xFF400104, 4, &ioWord);
       int w = ioWord >> 16, h = ioWord & 0xFFFF;
+       
+   printf("[DEBUG] MIPS - Vou chamar write do BUS \n");
+
       for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++)
-          ioController->write(0xFF000000 + ((y*w + x) << 2), 4, &bg.buf[(bg.height - 1 - y)*bg.width + x]);
+          bus_port->write(m_unique_priority, 0xFF000000 + ((y*w + x) << 2), 4, &bg.buf[(bg.height - 1 - y)*bg.width + x]);
       }
     }
     
-    ioController->read(0xFF400000 + 'w', 4, &ioWord);
+   printf("[DEBUG] MIPS - Terminei de chamar o write do BUS \n");
+
+    bus_port->read(m_unique_priority, 0xFF400000 + 'w', 4, &ioWord);
     if (ioWord == 1) {
       printf("Insert a string: ");
       fflush(stdout);
       std::string tmp;
-      ioController->read(0xFF400114, 4, &ioWord);
+      bus_port->read(m_unique_priority, 0xFF400114, 4, &ioWord);
       while (ioWord != '\r') {
         tmp += char(ioWord);
         printf("%c", char(ioWord));
         fflush(stdout);
-        ioController->read(0xFF400114, 4, &ioWord);
+        bus_port->read(m_unique_priority, 0xFF400114, 4, &ioWord);
       }
       printf("\nString inserted: %s\n", tmp.c_str());
       fflush(stdout);
     }
     
-    ioController->read(0xFF400102, 4, &ioWord);
+    bus_port->read(m_unique_priority, 0xFF400102, 4, &ioWord);
     if (ioWord)
       exit();
     

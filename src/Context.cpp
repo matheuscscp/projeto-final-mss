@@ -14,7 +14,7 @@
 #include <cstring>
 
 // lib
-#include <SDL_image.h>
+#include <SDL2/SDL_image.h>
 
 // local
 #include "Thread.hpp"
