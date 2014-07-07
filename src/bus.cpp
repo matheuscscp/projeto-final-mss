@@ -2,8 +2,6 @@
 
 void simple_bus::end_of_elaboration(void)
 {
-    printf("[DEBUG] BUS - Verificando mapeamento da memoria \n");
-
     // check por overlapping na area de memoria dos slaves
     bool no_overlap;
     for (int i = 1; i < slave_port.size(); ++i) {
@@ -14,7 +12,7 @@ void simple_bus::end_of_elaboration(void)
                     ( slave1->start_address() > (slave2->start_address()+slave2->size()) );
             if ( !no_overlap ) {
                 printf("------------------------------------------------------------\n");
-                printf("Error: dois slaves utilizando mesmo mapeamento da memoria : \n");
+                printf("Error: Dois slaves utilizando mesmo mapeamento da memoria : \n");
                 printf("slave %i : %0X..%0X\n",i,slave1->start_address(),(slave1->start_address()+slave1->size()));
                 printf("slave %i : %0X..%0X\n",j,slave2->start_address(),(slave2->start_address()+slave2->size()));
                 printf("------------------------------------------------------------\n");
@@ -28,25 +26,25 @@ void simple_bus::end_of_elaboration(void)
 //-- process
 //----------------------------------------------------------------------------
 
-void simple_bus::main_action()
-{
+//void simple_bus::main_action()
+//{
 
-//   printf("[DEBUG] BUS - Pulso de descida \n");
+////   printf("[DEBUG] BUS - Pulso de descida \n");
  
-//    if (!m_current_request){
-//        m_current_request = m_requests.back();
-//        m_requests.pop_back();
+////    if (!m_current_request){
+////        m_current_request = m_requests.back();
+////        m_requests.pop_back();
 
-//         handle_request();
+////         handle_request();
 
-//    }
-//    else{
-//        printf("Tempo: %g   Endereco: [%d]\n", sc_time_stamp().to_double(), m_current_request->address);
-//    }
-//    if (m_current_request)
-//        handle_request();
+////    }
+////    else{
+////        printf("Tempo: %g   Endereco: [%d]\n", sc_time_stamp().to_double(), m_current_request->address);
+////    }
+////    if (m_current_request)
+////        handle_request();
 
-}
+//}
 
 //----------------------------------------------------------------------------
 //-- BUS methods:
@@ -55,7 +53,7 @@ void simple_bus::main_action()
 //     get_request()
 //----------------------------------------------------------------------------
 
-void simple_bus::handle_request(void)
+void simple_bus::handle_request( simple_bus_request *m_current_request)
 {
 
     m_current_request->status = BUS_WAIT;
@@ -63,7 +61,6 @@ void simple_bus::handle_request(void)
 
     if (!slave) {
         m_current_request->status = BUS_ERROR;
-        m_current_request->transfer_done.notify();
         m_current_request = (simple_bus_request *)0;
         return;
     }
@@ -73,7 +70,6 @@ void simple_bus::handle_request(void)
     else
         slave->read(m_current_request->address, m_current_request->qteBytes, m_current_request->data);
 
-    m_current_request->transfer_done.notify();
     m_current_request->status = BUS_OK;
 
     //Limpa request
@@ -120,10 +116,6 @@ bus_status simple_bus::get_status(unsigned int unique_priority)
 
 void simple_bus::read(unsigned int unique_priority, uint32_t src, uint32_t bytes, void* dst)
 {
-
-
-    printf("[DEBUG] BUS - Chamou read do BUS \n");
-
     simple_bus_request *request = get_request(unique_priority);
 
     request->do_write           = READ;
@@ -132,23 +124,16 @@ void simple_bus::read(unsigned int unique_priority, uint32_t src, uint32_t bytes
     request->data               = dst;
     request->status             = BUS_REQUEST;
 
-    slave_port[0]->read(request->address, request->qteBytes, request->data);
-//    slave_port[0]->read(src, bytes, dst);
 
-    printf("[DEBUG] BUS - Terminou leitura BUS \n");
+    handle_request(request);
+
     request=(simple_bus_request *)0;
-
-
-   // handle_request();
-//    wait(request->transfer_done);
-//    wait(clock->posedge_event());
-
+    m_requests.pop_back();
 }
 
 void simple_bus::write(unsigned int unique_priority, uint32_t dst, uint32_t bytes, void* src)
 {
 
-   printf("[DEBUG] BUS - Chamou write do BUS \n");
     simple_bus_request *request = get_request(unique_priority);
 
     request->do_write           = WRITE;
@@ -157,13 +142,8 @@ void simple_bus::write(unsigned int unique_priority, uint32_t dst, uint32_t byte
     request->data               = src;
     request->status             = BUS_REQUEST;
 
-//    slave_port[0]->write(dst, bytes, src);
-    slave_port[0]->write(request->address, request->qteBytes, request->data);
+    handle_request(request);
 
     request=(simple_bus_request *)0;
-
-
-   printf("[DEBUG] BUS - Terminou escrita BUS \n");
-   // wait(request->transfer_done);
-   // wait(clock->posedge_event());
+    m_requests.pop_back();
 }

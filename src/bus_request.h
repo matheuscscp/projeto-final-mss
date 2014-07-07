@@ -24,7 +24,7 @@ struct simple_bus_request
     bus_status status;      //Status do barramento
 
     // request status
-    sc_event transfer_done;
+//    sc_event transfer_done;
 
     // default constructor
     simple_bus_request();

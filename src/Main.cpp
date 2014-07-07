@@ -13,21 +13,18 @@ int sc_main(int argc, char* argv[]) {
 
     MIPS mips("mips");
     IOController ioController("ioController", 0xFF000000);
+//    IOController ioController_mesmo_mapeamento("ioController_mesmo_mapeamento", 0xFF000000);
     simple_bus *bus;
 
     bus = new simple_bus ("bus");
     sc_clock clk;
- //sc_clock clk("_Clock", 10, SC_NS,0.5, 1, SC_NS);
-
-
 
     mips.clk(clk);
-      mips.bus_port(*bus);
-//    mips.bus_port_IO(ioController);
-  //mips.ioController(bus);
+    mips.bus_port(*bus);
 
     bus->clock(clk);
     bus->slave_port(ioController);
+//    bus->slave_port(ioController_mesmo_mapeamento);
 
     sc_start();
 

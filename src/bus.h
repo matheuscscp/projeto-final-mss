@@ -25,13 +25,13 @@ public:
     , m_current_request(0)
   {
     // process declaration
-    SC_METHOD(main_action);
-    dont_initialize();
-    sensitive << clock.neg();
+//    SC_METHOD(main_action);
+//    dont_initialize();
+//    sensitive << clock.neg();
   }
 
   // process
-  void main_action();
+//  void main_action();
 
   //  BUS interface - master
   void read(unsigned int unique_priority, uint32_t src, uint32_t bytes, void* dst);
@@ -40,7 +40,7 @@ public:
     bus_status get_status(unsigned int unique_priority);
 
 private:
-  void handle_request(void);
+  void handle_request(simple_bus_request *m_current_request);
   void end_of_elaboration(void);
   readwrite_if * get_slave(uint32_t address);
 

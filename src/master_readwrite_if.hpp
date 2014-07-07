@@ -2,6 +2,7 @@
 #define MASTER_READWRITE_IF_HPP_
 
 #include <systemc.h>
+#include"bus_request.h"
 
 class master_readwrite_if
   : public sc_interface
@@ -9,6 +10,8 @@ class master_readwrite_if
 public:
     virtual void read(unsigned int unique_priority, uint32_t src, uint32_t bytes, void* dst) = 0;
     virtual void write(unsigned int unique_priority, uint32_t dst, uint32_t bytes, void* src) = 0;
+
+    virtual bus_status get_status(unsigned int unique_priority) = 0;
 
 };
 
