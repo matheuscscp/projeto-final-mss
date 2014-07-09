@@ -8,6 +8,7 @@
 #include "MIPS.hpp"
 #include "IOController.hpp"
 #include "bus.h"
+#include "halftone1.hpp"
 
 int sc_main(int argc, char* argv[]) {
 
@@ -15,8 +16,9 @@ int sc_main(int argc, char* argv[]) {
     IOController ioController("ioController", 0xFF000000);
 //    IOController ioController_mesmo_mapeamento("ioController_mesmo_mapeamento", 0xFF000000);
     simple_bus *bus;
-
     bus = new simple_bus ("bus");
+    Halftone hlft("hlft", 0xFF400200);
+
     sc_clock clk;
 
     mips.clk(clk);
@@ -24,6 +26,7 @@ int sc_main(int argc, char* argv[]) {
 
     bus->clock(clk);
     bus->slave_port(ioController);
+    bus->slave_port(hlft);
 //    bus->slave_port(ioController_mesmo_mapeamento);
 
     sc_start();
