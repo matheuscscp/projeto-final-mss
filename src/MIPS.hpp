@@ -78,7 +78,7 @@ SC_MODULE(MIPS) {
       ioController->read(0xFF400104, 4, &ioWord);
       int w = ioWord >> 16, h = ioWord & 0xFFFF;
       for (int y = 0; y < h && y < int(bg.height); y++) {
-        for (int x = 0; x < w && y < int(bg.width); x++) {
+        for (int x = 0; x < w && x < int(bg.width); x++) {
           uint32_t rgbpixel;
           if (bg.bpp == 8) {
             uint8_t rawpixel = ((uint8_t*)bg.buf)[(bg.height - 1 - y)*bg.width + x];
