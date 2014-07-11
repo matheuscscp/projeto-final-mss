@@ -33,7 +33,7 @@ struct Bitmap {
   uint32_t vertical_resolution;
   uint32_t palette_size;
   uint32_t important_colors;
-  uint32_t* buf;
+  void* buf;
 };
 
 SC_MODULE(MIPS) {
@@ -48,7 +48,7 @@ SC_MODULE(MIPS) {
     SC_METHOD(exec);
     sensitive << clk.pos();
     
-    const char fn[] = "teste.bmp";
+    const char fn[] = "mandrill2.bmp";
     const char mode[] = "rb";
     
     breg[4] = (uint32_t)fn; breg[5] = (uint32_t)mode;
@@ -58,7 +58,7 @@ SC_MODULE(MIPS) {
     breg[5] = (uint32_t)&bg.magic_number; breg[6] = 54;
     fileRead();
     
-    bg.buf = new uint32_t[bg.width*bg.height];
+    bg.buf = malloc(bg.width*bg.height*bg.bpp/8);
     breg[5] = (uint32_t)bg.buf; breg[6] = bg.width*bg.height*bg.bpp/8;
     fileRead();
     
@@ -66,7 +66,7 @@ SC_MODULE(MIPS) {
   }
   
   ~MIPS() {
-    delete[] bg.buf;
+    free(bg.buf);
   }
   
   void exec() {
@@ -78,8 +78,16 @@ SC_MODULE(MIPS) {
       ioController->read(0xFF400104, 4, &ioWord);
       int w = ioWord >> 16, h = ioWord & 0xFFFF;
       for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++)
-          ioController->write(0xFF000000 + ((y*w + x) << 2), 4, &bg.buf[(bg.height - 1 - y)*bg.width + x]);
+        for (int x = 0; x < w; x++) {
+          uint32_t rgbpixel;
+          if (bg.bpp == 8) {
+            uint8_t rawpixel = ((uint8_t*)bg.buf)[(bg.height - 1 - y)*bg.width + x];
+            rgbpixel = rawpixel | (rawpixel << 8) | (rawpixel << 16);
+          }
+          else
+            rgbpixel = ((uint32_t*)bg.buf)[(bg.height - 1 - y)*bg.width + x];
+          ioController->write(0xFF000000 + ((y*w + x) << 2), 4, &rgbpixel);
+        }
       }
     }
     
